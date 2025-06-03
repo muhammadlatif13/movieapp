@@ -30,11 +30,11 @@ export default function Index() {
   useEffect(() => {
     const loadRecentMovies = async () => {
       try {
-        const json = await AsyncStorage.getItem('lastest movies');
+        const json = await AsyncStorage.getItem('recentlyWatched');
         const movies = json ? JSON.parse(json) : [];
         setRecentMovies(movies.reverse()); // show latest first
       } catch (error) {
-        console.error('Failed to load lastest movies:', error);
+        console.error('Failed to load recently watched:', error);
       }
     };
 
@@ -134,11 +134,11 @@ export default function Index() {
               </>
             )}
 
-            {/* lastest movies */}
+            {/* Recently Watched */}
             {recentMovies.length > 0 && (
               <>
                 <Text className="text-white text-lg font-bold px-5 mb-3">
-                  lastest movies
+                  Recently Watched
                 </Text>
                 <FlatList
                   horizontal
