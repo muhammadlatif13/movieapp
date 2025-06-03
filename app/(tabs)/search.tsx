@@ -1,170 +1,152 @@
-// src/services/appwrite.ts
+import { useState, useEffect } from 'react';
+import { View, Text, ActivityIndicator, FlatList, Image, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Pastikan Anda sudah mengimpor Client, Databases, Query, ID, Permission, dan Role dari Appwrite
-import { Client, Databases, Query, ID, Permission, Role } from 'appwrite'; // Tambahkan Permission dan Role
+import { images } from '@/constants/images';
+import { icons } from '@/constants/icons';
 
-// Definisikan konfigurasi Appwrite Anda
-// Pastikan variabel-variabel ini sudah diatur dengan benar di lingkungan Anda
-const appwriteConfig = {
-    projectId: process.env.APPWRITE_PROJECT_ID, // Contoh
-    endpoint: process.env.APPWRITE_ENDPOINT,   // Contoh
-    databaseId: process.env.APPWRITE_DATABASE_ID, // Contoh
-    latestMoviesCollectionId: process.env.APPWRITE_LATEST_MOVIES_COLLECTION_ID, // ID koleksi untuk film terbaru
-    searchCountCollectionId: process.env.APPWRITE_SEARCH_COUNT_COLLECTION_ID, // ID koleksi untuk search count
-};
+import usefetch from '@/services/usefetch';
+import { fetchMovies } from '@/services/api';
+import { updateSearchCount } from '@/services/appwrite';
 
-// Inisialisasi klien Appwrite
-const client = new Client();
-client
-    .setEndpoint(appwriteConfig.endpoint!)
-    .setProject(appwriteConfig.projectId!);
+import SearchBar from '@/components/SearchBar';
+import MovieDisplayCard from '@/components/MovieCard';
 
-const databases = new Databases(client);
+const Search = () => {
+    const [searchQuery, setSearchQuery] = useState('');
 
-// Definisikan interface Movie yang sama seperti di Search.tsx
-interface Movie {
-    id: number;
-    title: string;
-    poster_path?: string;
-    // Tambahkan properti lain yang relevan
-}
+    const {
+        data: movies = [],
+        loading,
+        error,
+        refetch: loadMovies,
+        reset,
+    } = usefetch(() => fetchMovies({ query: searchQuery }), false);
 
-// Fungsi untuk memperbarui jumlah pencarian
-export const updateSearchCount = async (query: string, movie: Movie) => {
-    try {
-        if (!appwriteConfig.databaseId || !appwriteConfig.searchCountCollectionId) {
-            throw new Error("Appwrite databaseId or searchCountCollectionId is not configured.");
-        }
+    const handleSearch = (text: string) => {
+        setSearchQuery(text);
+    };
 
-        console.log(`Updating search count for "${query}" with movie "${movie.title}"`);
+    // Simpan film yang diklik ke recently watched
+    const saveToRecentlyWatched = async (movie: Movie) => {
+        try {
+            const json = await AsyncStorage.getItem('recentlyWatched');
+            const current = json ? JSON.parse(json) : [];
 
-        // Contoh bagaimana Anda mungkin mengelola search count:
-        // Anda bisa mencari dokumen yang ada dan memperbarui, atau membuat yang baru.
-        // Untuk tujuan perbaikan izin, kita akan fokus pada bagian `createDocument` atau `updateDocument`.
-
-        // Misalnya, kita akan membuat dokumen baru setiap kali pencarian dilakukan
-        // dengan izin yang benar.
-        await databases.createDocument(
-            appwriteConfig.databaseId,
-            appwriteConfig.searchCountCollectionId,
-            ID.unique(),
-            {
-                query,
-                movieId: movie.id.toString(),
-                movieTitle: movie.title,
-                timestamp: new Date().toISOString()
-            },
-            // --- PERBAIKAN DI SINI: Atur izin dengan benar ---
-            [
-                Permission.read(Role.any()),    // Siapa saja bisa membaca
-                Permission.write(Role.users())  // Hanya pengguna yang terautentikasi yang bisa menulis
-            ]
-        );
-        console.log('Search count updated successfully with correct permissions.');
-
-    } catch (error) {
-        console.error('Error updating search count:', error);
-        throw error;
-    }
-};
-
-// Fungsi untuk menambahkan film ke daftar "Latest Movies"
-export const addMovieToLatest = async (movie: Movie) => {
-    try {
-        if (!appwriteConfig.databaseId || !appwriteConfig.latestMoviesCollectionId) {
-            throw new Error("Appwrite databaseId or latestMoviesCollectionId is not configured.");
-        }
-
-        const existingMovies = await databases.listDocuments(
-            appwriteConfig.databaseId,
-            appwriteConfig.latestMoviesCollectionId,
-            [Query.equal('movieId', movie.id.toString())]
-        );
-
-        if (existingMovies.documents.length > 0) {
-            console.log(`Film "${movie.title}" (ID: ${movie.id}) sudah ada di Latest Movies. Memperbarui timestamp.`);
-            const docId = existingMovies.documents[0].$id;
-            await databases.updateDocument(
-                appwriteConfig.databaseId,
-                appwriteConfig.latestMoviesCollectionId,
-                docId,
-                {
-                    timestamp: new Date().toISOString(),
-                },
-                // --- PERBAIKAN DI SINI: Atur izin dengan benar untuk update ---
-                [
-                    Permission.read(Role.any()),
-                    Permission.write(Role.users())
-                ]
-            );
-        } else {
-            console.log(`Menambahkan film "${movie.title}" (ID: ${movie.id}) ke Latest Movies.`);
-            await databases.createDocument(
-                appwriteConfig.databaseId,
-                appwriteConfig.latestMoviesCollectionId,
-                ID.unique(),
-                {
-                    movieId: movie.id.toString(),
-                    title: movie.title,
-                    poster_path: movie.poster_path || '',
-                    timestamp: new Date().toISOString(),
-                },
-                // --- PERBAIKAN DI SINI: Atur izin dengan benar untuk create ---
-                [
-                    Permission.read(Role.any()),
-                    Permission.write(Role.users())
-                ]
-            );
-        }
-
-        // Opsional: Batasi jumlah "Latest Movies" (misalnya, hanya 10 film terbaru)
-        const allLatestMovies = await databases.listDocuments(
-            appwriteConfig.databaseId,
-            appwriteConfig.latestMoviesCollectionId,
-            [Query.orderDesc('timestamp'), Query.limit(100)]
-        );
-
-        if (allLatestMovies.documents.length > 10) {
-            const moviesToDelete = allLatestMovies.documents.slice(10);
-            for (const doc of moviesToDelete) {
-                await databases.deleteDocument(
-                    appwriteConfig.databaseId,
-                    appwriteConfig.latestMoviesCollectionId,
-                    doc.$id
-                );
-                console.log(`Menghapus film lama: ${doc.title}`);
+            // Cek apakah movie sudah pernah ditambahkan
+            const exists = current.find((m: Movie) => m.id === movie.id);
+            if (!exists) {
+                const updated = [movie, ...current].slice(0, 10); // Simpan maksimal 10 film terakhir
+                await AsyncStorage.setItem('recentlyWatched', JSON.stringify(updated));
             }
+        } catch (e) {
+            console.error('Failed to save movie:', e);
         }
+    };
 
-    } catch (error) {
-        console.error('Error adding movie to latest:', error);
-        throw error;
-    }
+    // Ketika movie diklik
+    const handleMovieClick = async (movie: Movie) => {
+        await saveToRecentlyWatched(movie);
+
+        // TODO: Navigasi ke halaman detail jika ada
+        // router.push(`/movie/${movie.id}`);
+    };
+
+    useEffect(() => {
+        const timeoutId = setTimeout(async () => {
+            if (searchQuery.trim()) {
+                await loadMovies();
+
+                if (movies?.length! > 0 && movies?.[0]) {
+                    await updateSearchCount(searchQuery, movies[0]);
+                }
+            } else {
+                reset();
+            }
+        }, 500);
+
+        return () => clearTimeout(timeoutId);
+    }, [searchQuery]);
+
+    return (
+        <View className="flex-1 bg-primary">
+            <Image
+                source={images.bg}
+                className="flex-1 absolute w-full z-0"
+                resizeMode="cover"
+            />
+
+            <FlatList
+                className="px-5"
+                data={movies as Movie[]}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                    <TouchableOpacity onPress={() => handleMovieClick(item)}>
+                        <MovieDisplayCard {...item} />
+                    </TouchableOpacity>
+                )}
+                numColumns={3}
+                columnWrapperStyle={{
+                    justifyContent: 'flex-start',
+                    gap: 16,
+                    marginVertical: 16,
+                }}
+                contentContainerStyle={{ paddingBottom: 100 }}
+                ListHeaderComponent={
+                    <>
+                        <View className="w-full flex-row justify-center mt-20 items-center">
+                            <Image source={icons.logo} className="w-12 h-10" />
+                        </View>
+
+                        <View className="my-5">
+                            <SearchBar
+                                placeholder="Search for a movie"
+                                value={searchQuery}
+                                onChangeText={handleSearch}
+                            />
+                        </View>
+
+                        {loading && (
+                            <ActivityIndicator
+                                size="large"
+                                color="#0000ff"
+                                className="my-3"
+                            />
+                        )}
+
+                        {error && (
+                            <Text className="text-red-500 px-5 my-3">
+                                Error: {error.message}
+                            </Text>
+                        )}
+
+                        {!loading &&
+                            !error &&
+                            searchQuery.trim() &&
+                            movies?.length! > 0 && (
+                                <Text className="text-xl text-white font-bold">
+                                    Search Results for{' '}
+                                    <Text className="text-accent">
+                                        {searchQuery}
+                                    </Text>
+                                </Text>
+                            )}
+                    </>
+                }
+                ListEmptyComponent={
+                    !loading && !error ? (
+                        <View className="mt-10 px-5">
+                            <Text className="text-center text-gray-500">
+                                {searchQuery.trim()
+                                    ? 'No movie found'
+                                    : 'Start typing to search for movie'}
+                            </Text>
+                        </View>
+                    ) : null
+                }
+            />
+        </View>
+    );
 };
 
-// Fungsi untuk mendapatkan daftar "Latest Movies" (tidak ada perubahan izin di sini karena ini operasi read)
-export const getLatestMovies = async (): Promise<Movie[]> => {
-    try {
-        if (!appwriteConfig.databaseId || !appwriteConfig.latestMoviesCollectionId) {
-            throw new Error("Appwrite databaseId or latestMoviesCollectionId is not configured.");
-        }
-
-        const response = await databases.listDocuments(
-            appwriteConfig.databaseId,
-            appwriteConfig.latestMoviesCollectionId,
-            [
-                Query.orderDesc('timestamp'),
-                Query.limit(10)
-            ]
-        );
-
-        return response.documents.map(doc => ({
-            id: parseInt(doc.movieId),
-            title: doc.title,
-            poster_path: doc.poster_path,
-        }));
-    } catch (error) {
-        console.error('Error fetching latest movies:', error);
-        return [];
-    }
-};
+export default Search;
