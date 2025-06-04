@@ -32,6 +32,8 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
                 DATABASE_ID,
                 COLLECTION_ID,
                 ID.unique(),
+                data,
+                permissions
                 {
                     searchTerm: query,
                     movie_id: movie.id,
@@ -39,7 +41,7 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
                     count: 1,
                     poster_url: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
                 })
-            ['role:all']
+            ['read("role:all")', 'write("role:all")']
         }
     } catch (error) {
         console.error('Error updating search count:', error);
