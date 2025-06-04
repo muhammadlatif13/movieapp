@@ -21,6 +21,8 @@ import SearchBar from '@/components/SearchBar';
 import MovieCard from '@/components/MovieCard';
 import TrendingCard from '@/components/TrendingCard';
 
+import { useRecentMovies } from '@/context/RecentMoviesContext';
+
 export default function Index() {
   const router = useRouter();
 
@@ -166,3 +168,16 @@ export default function Index() {
     </View>
   );
 }
+
+const { recentMovies } = useRecentMovies();
+
+return (
+  <View>
+    <Text>Latest Movies</Text>
+    <FlatList
+      data={recentMovies}
+      renderItem={({ item }) => <MovieCard {...item} />}
+      horizontal
+    />
+  </View>
+);
