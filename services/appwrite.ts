@@ -39,7 +39,12 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
           count: 1,
           poster_url: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
         },
-        ['read("role:all")', 'write("role:all")'] // permissions harus di sini
+        [
+        Permission.read(Role.any())
+        Permission.write(Role.users())
+        Permission.update(Role.user(ID))
+        Permission.delete(Role.user(ID))
+          ]
       );
     }
   } catch (error) {
