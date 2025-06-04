@@ -42,8 +42,8 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
         [
         Permission.read(Role.any())
         Permission.write(Role.users())
-        Permission.update(Role.user(ID))
-        Permission.delete(Role.user(ID))
+        Permission.update(Role.user())
+        Permission.delete(Role.user())
           ]
       );
     }
