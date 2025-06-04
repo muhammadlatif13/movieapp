@@ -15,7 +15,7 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
             DATABASE_ID,
             COLLECTION_ID,
             [Query.equal('searchTerm', query)]
-        )
+        );
 
         if (result.documents.length > 0) {
             const existingMovie = result.documents[0];
@@ -26,7 +26,7 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
                 {
                     count: existingMovie.count + 1,
                 }
-            )
+            );
         } else {
             await database.createDocument(
                 DATABASE_ID,
@@ -40,14 +40,14 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
                     title: movie.title,
                     count: 1,
                     poster_url: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-                })
+                }),
             ['read("role:all")', 'write("role:all")']
-        }
+        };
     } catch (error) {
         console.error('Error updating search count:', error);
         throw error;
     }
-}
+};
 
 export const getTrendingMovies = async (): Promise<
     TrendingMovie[] | undefined
