@@ -1,4 +1,4 @@
-import { Client, Databases, ID, Query, Permission, Role } from 'react-native-appwrite';
+import { Client, Databases, ID, Query } from 'react-native-appwrite';
 
 const DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID!;
 const COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID!;
@@ -39,12 +39,6 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
           count: 1,
           poster_url: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
         },
-        [
-        Permission.read(Role.any()),
-        Permission.write(Role.users()),
-        Permission.update(Role.user()),
-        Permission.delete(Role.user())
-          ]
       );
     }
   } catch (error) {
