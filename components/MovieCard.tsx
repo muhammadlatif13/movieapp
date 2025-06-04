@@ -3,6 +3,23 @@ import { Text, Image, TouchableOpacity, View } from 'react-native';
 
 import { icons } from '@/constants/icons';
 
+import { useRecentMovies } from '@/context/RecentMoviesContext';
+import { useRouter } from 'expo-router';
+
+// Tambahkan dalam komponen MovieCard
+const { addRecentMovie } = useRecentMovies();
+const router = useRouter();
+
+const handlePress = () => {
+  addRecentMovie({ id, title, poster_path, vote_average, release_date });
+  router.push(`/movie/${id}`);
+};
+
+// Ganti <Link> dengan handler klik
+<TouchableOpacity className="w-[30%]" onPress={handlePress}>
+  ...
+</TouchableOpacity>
+
 const MovieCard = ({
     id,
     poster_path,
