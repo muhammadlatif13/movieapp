@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { View, Text, ActivityIndicator, FlatList, Image, TouchableOpacity } from 'react-native';
+import React, { createContext, useContext, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { images } from '@/constants/images';
@@ -28,21 +29,26 @@ const Search = () => {
     };
 
     // Simpan film yang diklik ke recently watched
-    const saveToRecentlyWatched = async (movie: Movie) => {
-        try {
-            const json = await AsyncStorage.getItem('recentlyWatched');
-            const current = json ? JSON.parse(json) : [];
+    const RecentMoviesContext = createContext(null);
 
-            // Cek apakah movie sudah pernah ditambahkan
-            const exists = current.find((m: Movie) => m.id === movie.id);
-            if (!exists) {
-                const updated = [movie, ...current].slice(0, 10); // Simpan maksimal 10 film terakhir
-                await AsyncStorage.setItem('recentlyWatched', JSON.stringify(updated));
-            }
-        } catch (e) {
-            console.error('Failed to save movie:', e);
-        }
-    };
+export const RecentMoviesProvider = ({ children }) => {
+  const [recentMovies, setRecentMovies] = useState([]);
+
+  const addRecentMovie = (movie) => {
+    setRecentMovies((prev) => {
+      const filtered = prev.filter((m) => m.id !== movie.id);
+      return [movie, ...filtered].slice(0, 10); // max 10 movie
+    });
+  };
+
+  return (
+    <RecentMoviesContext.Provider value={{ recentMovies, addRecentMovie }}>
+      {children}
+    </RecentMoviesContext.Provider>
+  );
+};
+
+export const useRecentMovies = () => useContext(RecentMoviesContext);
 
     // Ketika movie diklik
     const handleMovieClick = async (movie: Movie) => {
