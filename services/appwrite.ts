@@ -39,6 +39,11 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
           count: 1,
           poster_url: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
         },
+       [ permissions: [Permission.read(Role.any()),
+        permissions: [Permission.write(Role.any()),
+        permissions: [Permission.read(update.any()),
+        permissions: [Permission.read(delete.any())
+        ]
       );
     }
   } catch (error) {
