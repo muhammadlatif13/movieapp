@@ -1,4 +1,4 @@
-import { Client, Databases, ID, Query } from 'react-native-appwrite';
+import { Client, Databases, ID, Query, Permission, Role  } from 'react-native-appwrite';
 
 const DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID!;
 const COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID!;
@@ -42,8 +42,8 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
        [
         Permission.read(Role.any()),
         Permission.write(Role.any()),
-        Permission.read(update.any()),
-        Permission.read(delete.any())
+        Permission.update(Role.any()),
+        Permission.delete(Role.any())
         ]
       );
     }
