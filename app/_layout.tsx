@@ -1,15 +1,6 @@
 import { Stack } from 'expo-router';
-import '../global.css';
 import { StatusBar } from 'react-native';
-import { RecentMoviesProvider } from '@/context/RecentMoviesContext';
-
-export default function App() {
-  return (
-    <RecentMoviesProvider>
-      <YourRootComponent />
-    </RecentMoviesProvider>
-  );
-}
+import '../global.css';
 
 export default function RootLayout() {
     return (
