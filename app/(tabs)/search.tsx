@@ -1,18 +1,15 @@
-import { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator, FlatList, Image, TouchableOpacity } from 'react-native';
-import React, { createContext, useContext, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, Image, Text, View } from 'react-native';
 
-import { images } from '@/constants/images';
 import { icons } from '@/constants/icons';
+import { images } from '@/constants/images';
 
-import usefetch from '@/services/usefetch';
 import { fetchMovies } from '@/services/api';
 import { updateSearchCount } from '@/services/appwrite';
+import usefetch from '@/services/usefetch';
 
-import { useRecentMovies } from '@/context/RecentMoviesContext'; 
-import SearchBar from '@/components/SearchBar';
 import MovieDisplayCard from '@/components/MovieCard';
+import SearchBar from '@/components/SearchBar';
 
 const Search = () => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -29,41 +26,13 @@ const Search = () => {
         setSearchQuery(text);
     };
 
-    // Simpan film yang diklik ke recently watched
-    const RecentMoviesContext = createContext(null);
-
-export const RecentMoviesProvider = ({ children }) => {
-  const [recentMovies, setRecentMovies] = useState([]);
-
-  const addRecentMovie = (movie) => {
-    setRecentMovies((prev) => {
-      const filtered = prev.filter((m) => m.id !== movie.id);
-      return [movie, ...filtered].slice(0, 10); // max 10 movie
-    });
-  };
-
-  return (
-    <RecentMoviesContext.Provider value={{ recentMovies, addRecentMovie }}>
-      {children}
-    </RecentMoviesContext.Provider>
-  );
-};
-
-export const useRecentMovies = () => useContext(RecentMoviesContext);
-
-    // Ketika movie diklik
-    const handleMovieClick = async (movie: Movie) => {
-        await saveToRecentlyWatched(movie);
-
-        // TODO: Navigasi ke halaman detail jika ada
-        // router.push(`/movie/${movie.id}`);
-    };
-
+    // Debounced search effect
     useEffect(() => {
         const timeoutId = setTimeout(async () => {
             if (searchQuery.trim()) {
                 await loadMovies();
 
+                // Call updateSearchCount only if there are results
                 if (movies?.length! > 0 && movies?.[0]) {
                     await updateSearchCount(searchQuery, movies[0]);
                 }
@@ -87,11 +56,7 @@ export const useRecentMovies = () => useContext(RecentMoviesContext);
                 className="px-5"
                 data={movies as Movie[]}
                 keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => handleMovieClick(item)}>
-                        <MovieDisplayCard {...item} />
-                    </TouchableOpacity>
-                )}
+                renderItem={({ item }) => <MovieDisplayCard {...item} />}
                 numColumns={3}
                 columnWrapperStyle={{
                     justifyContent: 'flex-start',
