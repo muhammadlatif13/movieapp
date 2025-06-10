@@ -10,6 +10,7 @@ import usefetch from '@/services/usefetch';
 import { fetchMovies } from '@/services/api';
 import { updateSearchCount } from '@/services/appwrite';
 
+import { useRecentMovies } from '@/context/RecentMoviesContext'; 
 import SearchBar from '@/components/SearchBar';
 import MovieDisplayCard from '@/components/MovieCard';
 
