@@ -1,5 +1,7 @@
+
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Text, View } from 'react-native';
+
 
 import { icons } from '@/constants/icons';
 import { images } from '@/constants/images';

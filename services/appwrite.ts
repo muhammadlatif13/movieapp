@@ -17,6 +17,7 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
       [Query.equal('searchTerm', query)]
     );
 
+<<<<<<< Updated upstream
     if (result.documents.length > 0) {
       const existingMovie = result.documents[0];
       await database.updateDocument(
@@ -25,6 +26,32 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
         existingMovie.$id,
         {
           count: existingMovie.count + 1,
+=======
+        if (result.documents.length > 0) {
+            const existingMovie = result.documents[0];
+            await database.updateDocument(
+                DATABASE_ID,
+                COLLECTION_ID,
+                existingMovie.$id,
+                {
+                    count: existingMovie.count + 1,
+                }
+            );
+        } else {
+            await database.createDocument(
+                DATABASE_ID,
+                COLLECTION_ID,
+                ID.unique(),
+                {
+                    searchTerm: query,
+                    movie_id: movie.id,
+                    title: movie.title,
+                    count: 1,
+                    poster_url: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+                },
+                
+            );
+>>>>>>> Stashed changes
         }
       );
     } else {
