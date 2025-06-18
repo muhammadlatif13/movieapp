@@ -13,6 +13,10 @@ import { icons } from '@/constants/icons';
 import useFetch from '@/services/usefetch';
 import { fetchMovieDetails } from '@/services/api';
 
+import { useState } from 'react';
+import { Button } from 'react-native';
+
+
 interface MovieInfoProps {
     label: string;
     value?: string | number | null;
@@ -34,6 +38,26 @@ const Details = () => {
     const { data: movie, loading } = useFetch(() =>
         fetchMovieDetails(id as string)
     );
+
+    const handleSave = async () => {
+    try {
+      await databases.createDocument(
+        'database-id', // Ganti dengan ID Appwrite database
+        'saved-films', // Ganti dengan ID koleksi untuk film tersimpan
+        'unique()',    // Auto-generate ID
+        {
+          user_id: user.$id,
+          movie_id: movie.id,
+          title: movie.title,
+          poster_path: movie.poster_path,
+          overview: movie.overview,
+        }
+      );
+      setIsSaved(true);
+    } catch (err) {
+      console.error('Gagal menyimpan film:', err);
+    }
+  };
 
     if (loading)
         return (
