@@ -1,21 +1,18 @@
+import { useState, useEffect } from "react";
+import { View, Text, ActivityIndicator, FlatList, Image } from "react-native";
 
+import { images } from "@/constants/images";
+import { icons } from "@/constants/icons";
 
+import useFetch from "@/services/usefetch";
+import { fetchMovies } from "@/services/api";
+import { updateSearchCount } from "@/services/appwrite";
 
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, Text, View } from 'react-native';
-
-import { icons } from '@/constants/icons';
-import { images } from '@/constants/images';
-
-import { fetchMovies } from '@/services/api';
-import { updateSearchCount } from '@/services/appwrite';
-import usefetch from '@/services/usefetch';
-
-import MovieDisplayCard from '@/components/MovieCard';
-import SearchBar from '@/components/SearchBar';
+import SearchBar from "@/components/SearchBar";
+import MovieDisplayCard from "@/components/MovieCard";
 
 const Search = () => {
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState("");
 
     const {
         data: movies = [],
@@ -23,7 +20,7 @@ const Search = () => {
         error,
         refetch: loadMovies,
         reset,
-    } = usefetch(() => fetchMovies({ query: searchQuery }), false);
+    } = useFetch(() => fetchMovies({ query: searchQuery }), false);
 
     const handleSearch = (text: string) => {
         setSearchQuery(text);
@@ -62,7 +59,7 @@ const Search = () => {
                 renderItem={({ item }) => <MovieDisplayCard {...item} />}
                 numColumns={3}
                 columnWrapperStyle={{
-                    justifyContent: 'flex-start',
+                    justifyContent: "flex-start",
                     gap: 16,
                     marginVertical: 16,
                 }}
@@ -100,10 +97,8 @@ const Search = () => {
                             searchQuery.trim() &&
                             movies?.length! > 0 && (
                                 <Text className="text-xl text-white font-bold">
-                                    Search Results for{' '}
-                                    <Text className="text-accent">
-                                        {searchQuery}
-                                    </Text>
+                                    Search Results for{" "}
+                                    <Text className="text-accent">{searchQuery}</Text>
                                 </Text>
                             )}
                     </>
@@ -113,8 +108,8 @@ const Search = () => {
                         <View className="mt-10 px-5">
                             <Text className="text-center text-gray-500">
                                 {searchQuery.trim()
-                                    ? 'No movie found'
-                                    : 'Start typing to search for movie'}
+                                    ? "No movies found"
+                                    : "Start typing to search for movies"}
                             </Text>
                         </View>
                     ) : null

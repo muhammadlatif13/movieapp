@@ -1,11 +1,8 @@
-import { Tabs } from 'expo-router';
-import { Image, ImageBackground, Text, View } from 'react-native';
+import { Tabs } from "expo-router";
+import { ImageBackground, Image, Text, View } from "react-native";
 
-import { icons } from '@/constants/icons';
-import { images } from '@/constants/images';
-
-
-
+import { icons } from "@/constants/icons";
+import { images } from "@/constants/images";
 
 function TabIcon({ focused, icon, title }: any) {
     if (focused) {
@@ -35,35 +32,31 @@ export default function TabsLayout() {
             screenOptions={{
                 tabBarShowLabel: false,
                 tabBarItemStyle: {
-                    width: '100%',
-                    height: '100%',
-                    justifyContent: 'center',
-                    alignItems: 'center',
+                    width: "100%",
+                    height: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
                 },
                 tabBarStyle: {
-                    backgroundColor: '#0F0D23',
+                    backgroundColor: "#0F0D23",
                     borderRadius: 50,
                     marginHorizontal: 20,
                     marginBottom: 36,
                     height: 52,
-                    position: 'absolute',
-                    overflow: 'hidden',
+                    position: "absolute",
+                    overflow: "hidden",
                     borderWidth: 1,
-                    borderColor: '#0F0D23',
+                    borderColor: "#0F0D23",
                 },
             }}
         >
             <Tabs.Screen
                 name="index"
                 options={{
-                    title: 'index',
+                    title: "index",
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
-                        <TabIcon
-                            focused={focused}
-                            icon={icons.home}
-                            title="Home"
-                        />
+                        <TabIcon focused={focused} icon={icons.home} title="Home" />
                     ),
                 }}
             />
@@ -71,14 +64,10 @@ export default function TabsLayout() {
             <Tabs.Screen
                 name="search"
                 options={{
-                    title: 'Search',
+                    title: "Search",
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
-                        <TabIcon
-                            focused={focused}
-                            icon={icons.search}
-                            title="Search"
-                        />
+                        <TabIcon focused={focused} icon={icons.search} title="Search" />
                     ),
                 }}
             />
@@ -86,14 +75,10 @@ export default function TabsLayout() {
             <Tabs.Screen
                 name="save"
                 options={{
-                    title: 'Save',
+                    title: "Save",
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
-                        <TabIcon
-                            focused={focused}
-                            icon={icons.save}
-                            title="Save"
-                        />
+                        <TabIcon focused={focused} icon={icons.save} title="Save" />
                     ),
                 }}
             />
@@ -101,14 +86,10 @@ export default function TabsLayout() {
             <Tabs.Screen
                 name="profile"
                 options={{
-                    title: 'Profile',
+                    title: "Profile",
                     headerShown: false,
                     tabBarIcon: ({ focused }) => (
-                        <TabIcon
-                            focused={focused}
-                            icon={icons.person}
-                            title="Profile"
-                        />
+                        <TabIcon focused={focused} icon={icons.person} title="Profile" />
                     ),
                 }}
             />

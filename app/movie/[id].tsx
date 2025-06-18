@@ -5,17 +5,13 @@ import {
     ActivityIndicator,
     ScrollView,
     TouchableOpacity,
-} from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { icons } from '@/constants/icons';
-import useFetch from '@/services/usefetch';
-import { fetchMovieDetails } from '@/services/api';
-
-import { useState } from 'react';
-import { Button } from 'react-native';
-
+import { icons } from "@/constants/icons";
+import useFetch from "@/services/usefetch";
+import { fetchMovieDetails } from "@/services/api";
 
 interface MovieInfoProps {
     label: string;
@@ -26,7 +22,7 @@ const MovieInfo = ({ label, value }: MovieInfoProps) => (
     <View className="flex-col items-start justify-center mt-5">
         <Text className="text-light-200 font-normal text-sm">{label}</Text>
         <Text className="text-light-100 font-bold text-sm mt-2">
-            {value || 'N/A'}
+            {value || "N/A"}
         </Text>
     </View>
 );
@@ -38,26 +34,6 @@ const Details = () => {
     const { data: movie, loading } = useFetch(() =>
         fetchMovieDetails(id as string)
     );
-
-    const handleSave = async () => {
-    try {
-      await databases.createDocument(
-        'database-id', // Ganti dengan ID Appwrite database
-        'saved-films', // Ganti dengan ID koleksi untuk film tersimpan
-        'unique()',    // Auto-generate ID
-        {
-          user_id: user.$id,
-          movie_id: movie.id,
-          title: movie.title,
-          poster_path: movie.poster_path,
-          overview: movie.overview,
-        }
-      );
-      setIsSaved(true);
-    } catch (err) {
-      console.error('Gagal menyimpan film:', err);
-    }
-  };
 
     if (loading)
         return (
@@ -88,16 +64,12 @@ const Details = () => {
                 </View>
 
                 <View className="flex-col items-start justify-center mt-5 px-5">
-                    <Text className="text-white font-bold text-xl">
-                        {movie?.title}
-                    </Text>
+                    <Text className="text-white font-bold text-xl">{movie?.title}</Text>
                     <View className="flex-row items-center gap-x-1 mt-2">
                         <Text className="text-light-200 text-sm">
-                            {movie?.release_date?.split('-')[0]} •
+                            {movie?.release_date?.split("-")[0]} •
                         </Text>
-                        <Text className="text-light-200 text-sm">
-                            {movie?.runtime}m
-                        </Text>
+                        <Text className="text-light-200 text-sm">{movie?.runtime}m</Text>
                     </View>
 
                     <View className="flex-row items-center bg-dark-100 px-2 py-1 rounded-md gap-x-1 mt-2">
@@ -115,10 +87,7 @@ const Details = () => {
                     <MovieInfo label="Overview" value={movie?.overview} />
                     <MovieInfo
                         label="Genres"
-                        value={
-                            movie?.genres?.map((g) => g.name).join(' • ') ||
-                            'N/A'
-                        }
+                        value={movie?.genres?.map((g) => g.name).join(" • ") || "N/A"}
                     />
 
                     <View className="flex flex-row justify-between w-1/2">
@@ -137,9 +106,8 @@ const Details = () => {
                     <MovieInfo
                         label="Production Companies"
                         value={
-                            movie?.production_companies
-                                ?.map((c) => c.name)
-                                .join(' • ') || 'N/A'
+                            movie?.production_companies?.map((c) => c.name).join(" • ") ||
+                            "N/A"
                         }
                     />
                 </View>
@@ -154,9 +122,7 @@ const Details = () => {
                     className="size-5 mr-1 mt-0.5 rotate-180"
                     tintColor="#fff"
                 />
-                <Text className="text-white font-semibold text-base">
-                    Go Back
-                </Text>
+                <Text className="text-white font-semibold text-base">Go Back</Text>
             </TouchableOpacity>
         </View>
     );
